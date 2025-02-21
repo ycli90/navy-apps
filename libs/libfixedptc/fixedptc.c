@@ -33,7 +33,7 @@ void fixedpt_str(fixedpt A, char *str, int max_dec) {
 
 	if (A < 0) {
 		str[slen++] = '-';
-		A *= -1;
+		A *= -1; // what if A == 0x80000000 ?
 	}
 
 	ip = fixedpt_toint(A);

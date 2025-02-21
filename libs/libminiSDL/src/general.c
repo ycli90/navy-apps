@@ -1,6 +1,10 @@
 #include <NDL.h>
+#include <SDL.h>
+
+int reent = 0;
 
 int SDL_Init(uint32_t flags) {
+  boot_time = NDL_GetTicks();
   return NDL_Init(flags);
 }
 

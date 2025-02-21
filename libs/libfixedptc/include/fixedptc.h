@@ -35,7 +35,7 @@
  *
  * == Special notes for the 32-bit precision ==
  * Signed 32-bit fixed point numeric library for the 24.8 format.
- * The specific limits are -8388608.999... to 8388607.999... and the
+ * The specific limits are -8388608.000... to 8388607.996... and the
  * most precise number is 0.00390625. In practice, you should not count
  * on working with numbers larger than a million or to the precision
  * of more than 2 decimal places. Make peace with the fact that PI
@@ -107,7 +107,7 @@ typedef	__uint128_t fixedptud;
 
 #define fixedpt_rconst(R) ((fixedpt)((R) * FIXEDPT_ONE + ((R) >= 0 ? 0.5 : -0.5)))
 #define fixedpt_fromint(I) ((fixedptd)(I) << FIXEDPT_FBITS)
-#define fixedpt_toint(F) ((F) >> FIXEDPT_FBITS)
+#define fixedpt_toint(F) ((F) >> FIXEDPT_FBITS) // floor
 #define fixedpt_add(A,B) ((A) + (B))
 #define fixedpt_sub(A,B) ((A) - (B))
 #define fixedpt_fracpart(A) ((fixedpt)(A) & FIXEDPT_FMASK)
@@ -127,35 +127,38 @@ typedef	__uint128_t fixedptud;
 
 /* Multiplies a fixedpt number with an integer, returns the result. */
 static inline fixedpt fixedpt_muli(fixedpt A, int B) {
-	return 0;
+	return A * B;
 }
 
 /* Divides a fixedpt number with an integer, returns the result. */
 static inline fixedpt fixedpt_divi(fixedpt A, int B) {
-	return 0;
+	return A / B;
 }
 
 /* Multiplies two fixedpt numbers, returns the result. */
 static inline fixedpt fixedpt_mul(fixedpt A, fixedpt B) {
-	return 0;
+	return (fixedptd)A * B / FIXEDPT_ONE;
 }
 
 
 /* Divides two fixedpt numbers, returns the result. */
 static inline fixedpt fixedpt_div(fixedpt A, fixedpt B) {
-	return 0;
+	return (fixedptd)A * FIXEDPT_ONE / B;
 }
 
 static inline fixedpt fixedpt_abs(fixedpt A) {
-	return 0;
+	return A < 0 ? -A : A;
 }
 
 static inline fixedpt fixedpt_floor(fixedpt A) {
-	return 0;
+	fixedpt Ai = fixedpt_fromint(fixedpt_toint(A));
+	return Ai;
 }
 
 static inline fixedpt fixedpt_ceil(fixedpt A) {
-	return 0;
+	fixedpt Ai = fixedpt_fromint(fixedpt_toint(A));
+	if (A != Ai) return Ai + FIXEDPT_ONE;
+	else return Ai;
 }
 
 /*

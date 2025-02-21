@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
         switch (ev.key.keysym.sym) {
           case SDLK_MINUS:  if (volume >= 8) volume -= 8; break;
           case SDLK_EQUALS: if (volume <= MAX_VOLUME - 8) volume += 8; break;
+          case SDLK_Q: is_end = 1; break;
         }
       }
     }

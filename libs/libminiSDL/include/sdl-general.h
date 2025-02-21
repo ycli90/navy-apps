@@ -23,4 +23,6 @@ static inline void SDL_DestroyMutex(SDL_mutex* mutex) { }
 static inline int SDL_mutexP(SDL_mutex* mutex) { return 0; }
 static inline int SDL_mutexV(SDL_mutex* mutex) { return 0; }
 
+extern int reent;
+
 #endif

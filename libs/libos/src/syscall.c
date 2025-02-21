@@ -61,49 +61,54 @@ void _exit(int status) {
 }
 
 int _open(const char *path, int flags, mode_t mode) {
-  _exit(SYS_open);
-  return 0;
+  return _syscall_(SYS_open, (intptr_t)path, (intptr_t)flags, (intptr_t)mode);
 }
 
 int _write(int fd, void *buf, size_t count) {
-  _exit(SYS_write);
-  return 0;
+  return _syscall_(SYS_write, (intptr_t)fd, (intptr_t)buf, (intptr_t)count);
 }
 
 void *_sbrk(intptr_t increment) {
-  return (void *)-1;
+  extern char _end;
+  static void *program_break = &_end;
+  void *new_program_break = program_break + increment;
+  if (_syscall_(SYS_brk, (intptr_t)new_program_break, 0, 0) == 0) {
+    void *orig_program_break = program_break;
+    program_break = new_program_break;
+    return orig_program_break;
+  }
+  else return (void *)-1;
 }
 
 int _read(int fd, void *buf, size_t count) {
-  _exit(SYS_read);
-  return 0;
+  return _syscall_(SYS_read, (intptr_t)fd, (intptr_t)buf, (intptr_t)count);
 }
 
 int _close(int fd) {
-  _exit(SYS_close);
-  return 0;
+  return _syscall_(SYS_close, (intptr_t)fd, 0, 0);
 }
 
 off_t _lseek(int fd, off_t offset, int whence) {
-  _exit(SYS_lseek);
-  return 0;
+  return _syscall_(SYS_lseek, (intptr_t)fd, (intptr_t)offset, (intptr_t)whence);
 }
 
 int _gettimeofday(struct timeval *tv, struct timezone *tz) {
-  _exit(SYS_gettimeofday);
-  return 0;
+  uint64_t time;
+  int ret = _syscall_(SYS_gettimeofday, (intptr_t)&time, 0, 0);
+  tv->tv_sec = time / 1000000;
+  tv->tv_usec = time % 1000000;
+  return ret;
 }
 
 int _execve(const char *fname, char * const argv[], char *const envp[]) {
-  _exit(SYS_execve);
-  return 0;
+  return _syscall_(SYS_execve, (intptr_t)fname, (intptr_t)argv, (intptr_t)envp);
 }
 
 // Syscalls below are not used in Nanos-lite.
 // But to pass linking, they are defined as dummy functions.
 
 int _fstat(int fd, struct stat *buf) {
-  return -1;
+  return _syscall_(SYS_fstat, (intptr_t)fd, (intptr_t)buf, 0);
 }
 
 int _stat(const char *fname, struct stat *buf) {

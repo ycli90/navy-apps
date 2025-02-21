@@ -45,6 +45,7 @@ static int dispinfo_fd = -1;
 static int fb_memfd = -1;
 static int evt_fd = -1;
 static int sb_fifo[2] = {-1, -1};
+static int sbcfg_fd = -1;
 static int sbctl_fd = -1;
 static uint32_t *fb = NULL;
 static char fsimg_path[512] = "";
@@ -129,6 +130,7 @@ static void open_event() {
 static void open_audio() {
   int ret = pipe2(sb_fifo, O_NONBLOCK);
   assert(ret == 0);
+  sbcfg_fd = dup(dummy_fd);
   sbctl_fd = dup(dummy_fd);
   pipe_size = fcntl(sb_fifo[0], F_GETPIPE_SZ);
 }
@@ -166,6 +168,8 @@ int open(const char *path, int flags, ...) {
     return fb_memfd;
   } else if (strcmp(path, "/dev/sb") == 0) {
     return sb_fifo[1];
+  } else if (strcmp(path, "/dev/sbcfg") == 0) {
+    return sbcfg_fd;
   } else if (strcmp(path, "/dev/sbctl") == 0) {
     return sbctl_fd;
   } else {
@@ -200,6 +204,8 @@ ssize_t read(int fd, void *buf, size_t count) {
       if (name) return snprintf((char *)buf, count, "k%c %s\n", keydown ? 'd' : 'u', name);
     }
     return 0;
+  } else if (fd == sbcfg_fd) {
+    return snprintf((char *)buf, count, "%d %d", 1, pipe_size);
   } else if (fd == sbctl_fd) {
     // return the free space of sb_fifo
     int used;
