@@ -156,14 +156,30 @@ static void sh_handle_cmd(const char *line) {
     }
   }
   if (i == NR_CMD) {
-    execvp(cmd, NULL);
+    const int max_argc = 8;
+    char * argv [max_argc] = {};
+    int argc = 0;
+    char *token = cmd;
+    while (token != NULL) {
+      if (argc == max_argc - 1) {
+        printf("too many args\n");
+        break;
+      }
+      argv[argc++] = token;
+      token = strtok(NULL, " ");
+    }
+    execvp(cmd, argv);
     sh_printf("Unknown command '%s'\n", cmd);
   }
 }
 
 void builtin_sh_run() {
-  play_music();
-  setenv("PATH", "/bin", 0);
+  char *env_boot = getenv("boot");
+  if (env_boot && strcmp(env_boot, "true") == 0) {
+    unsetenv("boot");
+    play_music();
+  }
+  setenv("PATH", "/bin:/usr/bin", 0);
   sh_banner();
   sh_prompt();
 

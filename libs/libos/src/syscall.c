@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <time.h>
 #include "syscall.h"
+#include <errno.h>
 
 // helper macros
 #define _concat(x, y) x ## y
@@ -44,6 +45,8 @@
 #else
 #error _syscall_ is not implemented
 #endif
+
+#define PGSIZE 4096
 
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
@@ -101,7 +104,9 @@ int _gettimeofday(struct timeval *tv, struct timezone *tz) {
 }
 
 int _execve(const char *fname, char * const argv[], char *const envp[]) {
-  return _syscall_(SYS_execve, (intptr_t)fname, (intptr_t)argv, (intptr_t)envp);
+  int ret_val = _syscall_(SYS_execve, (intptr_t)fname, (intptr_t)argv, (intptr_t)envp);
+  if (ret_val < 0) errno = -ret_val;
+  return -1;
 }
 
 // Syscalls below are not used in Nanos-lite.

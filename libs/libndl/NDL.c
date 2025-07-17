@@ -24,8 +24,11 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  int nread = read(evtdev, buf, len);
-  if (nread) return 1;
+  int nread = read(evtdev, buf, len - 1);
+  if (nread > 0) {
+    buf[nread] = '\0';
+    return 1;
+  }
   else return 0;
 }
 
@@ -46,6 +49,8 @@ void NDL_OpenCanvas(int *w, int *h) {
       if (strcmp(buf, "mmap ok") == 0) break;
     }
     close(fbctl);
+    canvas_w = screen_w;
+    canvas_h = screen_h;
   }
   else {
     fbdev = open("/dev/fb", 0, 0);

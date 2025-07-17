@@ -4,6 +4,7 @@ _start:
 #if defined(__ISA_AM_NATIVE__)
 
   movq $0, %rbp
+  movq %rax, %rsp
   // (rsp + 8) should be multiple of 16 when
   // control is transfered to the function entry point.
   // See amd64 ABI manual for more details
@@ -29,6 +30,7 @@ _start:
   jal call_main
 
 #elif defined(__riscv)
+  mv sp, a0
   mv s0, zero
   jal call_main
 
